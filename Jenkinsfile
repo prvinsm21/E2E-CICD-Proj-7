@@ -31,6 +31,28 @@ pipeline {
                 }
             }
         }
+        stage ('Integration testing') {
+            steps {
+                sh 'mvn verify -DskipUnitTests'
+            }
+        }
+
+        stage ('Static Code analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'sonar-api'){
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+        stage ('Quality Gate Check') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
+                }
+            }
+        }
 
     }
 }
