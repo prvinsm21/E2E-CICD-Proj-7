@@ -87,7 +87,7 @@ pipeline {
         }
         stage ('Trivy Image Scanning') {
             steps {
-                sh 'sudo trivy image ${DOCKERIMAGE_NAME} > $WORKSPACE/trivy-image-scan-$BUILD_NUMBER.txt'
+                sh 'trivy image ${DOCKERIMAGE_NAME} > $WORKSPACE/trivy-image-scan-$BUILD_NUMBER.txt'
             }
         }
         stage ('Push Docker image') {
