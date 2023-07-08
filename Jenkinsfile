@@ -87,6 +87,7 @@ pipeline {
         }
         stage ('Trivy Image Scanning') {
             steps {
+                sh 'mkdir trivy-image-scan'
                 sh 'sudo trivy images ${DOCKERIMAGE_NAME} > $WORKSPACE/trivy-image-scan/trivy-image-scan-$BUILD_NUMBER.txt'
             }
         }
