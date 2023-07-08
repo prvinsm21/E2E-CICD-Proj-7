@@ -1,4 +1,5 @@
-FROM adoptopenjdk/maven-openjdk11:alpine-jre
+FROM adoptopenjdk/openjdk11:alpine-jre
+
 
 ARG artifact=target/coffeeshop-site.jar
 
