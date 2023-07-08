@@ -57,6 +57,7 @@ pipeline {
             steps{
                 script{
                     def readPomVersion = readMavenPom file: 'pom.xml'
+                    
                     nexusArtifactUploader artifacts: 
                     [
                         [
@@ -69,7 +70,7 @@ pipeline {
                     credentialsId: 'nexus-auth', 
                     groupId: 'com.macko', 
                     nexusUrl: '192.168.29.38:8081', 
-                    nexusVersion: 'nexus2', 
+                    nexusVersion: 'nexus3', 
                     protocol: 'http', 
                     repository: 'coffeeshop-site', 
                     version: "${readPomVersion.version}"
