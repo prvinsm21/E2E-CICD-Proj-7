@@ -27,7 +27,7 @@ pipeline {
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/*.xml'
+                    junit '**/target/surefire-reports/TEST-*.xml'
                 }
             }
         }
@@ -50,6 +50,51 @@ pipeline {
             steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
+                }
+            }
+        }
+        stage ('Upload jar file to Nexus') {
+            steps{
+                script{
+                    nexusArtifactUploader artifacts: 
+                    [
+                        [
+                            artifactId: 'coffeeshop', 
+                            classifier: '', 
+                            file: 'target/coffeeshop-site.jar', 
+                            type: 'jar'
+                        ]
+                    ], 
+                    credentialsId: 'nexus-auth', 
+                    groupId: 'com.macko', 
+                    nexusUrl: '192.168.29.38:8081', 
+                    nexusVersion: 'nexus2', 
+                    protocol: 'http', 
+                    repository: 'coffeeshop-site', 
+                    version: '1.0.0'
+                }
+            }
+        }
+        stage ('Build Docker image') {
+            steps {
+                sh '''
+                   docker build -t ${DOCKERIMAGE_NAME} .
+                   docker images 
+                '''
+            }
+        }
+        stage ('Trivy Image Scanning') {
+            steps {
+                sh 'sudo trivy image ${DOCKERIMAGE_NAME} > $WORKSPACE/trivy-image-scan/trivy-image-scan-$BUILD_NUMBER.txt'
+            }
+        }
+        stage ('Push Docker image') {
+            steps {
+                script {
+                    def dockerImage = docker.image("${DOCKERIMAGE_NAME}")
+                    docker.withRegistry('https://index.docker.io/v1/', "dockerhub") {
+                    dockerImage.push()
+                    }
                 }
             }
         }
